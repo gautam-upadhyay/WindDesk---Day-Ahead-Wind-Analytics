@@ -1,0 +1,12 @@
+.venv
+node_modules
+.git
+artifacts
+.local
+test-results
+playwright-report
+tests
+e2e
+.pytest_cache
+**/__pycache__
+docs

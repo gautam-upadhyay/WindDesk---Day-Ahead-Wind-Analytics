@@ -1,0 +1,15 @@
+.git
+.venv
+node_modules
+dist
+.pytest_cache
+__pycache__
+**/__pycache__
+.env
+.env.*
+artifacts
+.local
+.vercel
+test-results
+playwright-report
+

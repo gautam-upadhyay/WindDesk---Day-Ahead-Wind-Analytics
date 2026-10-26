@@ -1,0 +1,22 @@
+services:
+  winddesk:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      PORT: "8000"
+      AUTH_DB_PATH: /app/accounts/winddesk.sqlite3
+      AUTH_COOKIE_SECURE: "false"
+    volumes:
+      - accounts:/app/accounts
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  accounts:

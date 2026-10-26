@@ -1,0 +1,522 @@
+{
+  "measuredAt": "2026-10-26T18:19:20.440Z",
+  "baseOrigin": "http://127.0.0.1:8000",
+  "browserVersion": "156.0.4314.42",
+  "runsPerProfileView": 3,
+  "methodology": "Local Chromium lab runs, new browser context and disabled browser cache for each sample. Mobile network 1.6Mbps down/750Kbps up, 150ms latency, 4x CPU slowdown. Web Vitals are document-lifecycle measurements; unavailable readings remain null. Usable time includes the first forecast chart and fonts. API timings include browser/network transfer, not server-only execution. These small samples are not real-user p75 metrics and do not establish a production SLA.",
+  "profiles": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "cpu": 1,
+      "latency": 0,
+      "download": -1,
+      "upload": -1
+    },
+    {
+      "name": "mobile-throttled",
+      "width": 390,
+      "height": 844,
+      "cpu": 4,
+      "latency": 150,
+      "download": 200000,
+      "upload": 93750
+    }
+  ],
+  "summary": [
+    {
+      "profile": "desktop",
+      "view": "home",
+      "medianReadyMs": 203.53719999999976,
+      "medianLcpMs": 116,
+      "medianInpMs": 40,
+      "medianCls": 0.023255503336588542,
+      "observedApiP50Ms": 8.400000000372529,
+      "observedApiP95Ms": 24.300000000279397
+    },
+    {
+      "profile": "desktop",
+      "view": "desk",
+      "medianReadyMs": 519.1342999999997,
+      "medianLcpMs": 108,
+      "medianInpMs": 56,
+      "medianCls": 0.05076454958315249,
+      "observedApiP50Ms": 8.399999999906868,
+      "observedApiP95Ms": 10
+    },
+    {
+      "profile": "mobile-throttled",
+      "view": "home",
+      "medianReadyMs": 3162.826299999999,
+      "medianLcpMs": 2620,
+      "medianInpMs": 240,
+      "medianCls": 0.022257220962583056,
+      "observedApiP50Ms": 286.79999999981374,
+      "observedApiP95Ms": 1485
+    },
+    {
+      "profile": "mobile-throttled",
+      "view": "desk",
+      "medianReadyMs": 5664.268400000001,
+      "medianLcpMs": 2500,
+      "medianInpMs": 200,
+      "medianCls": 0.10532114922430728,
+      "observedApiP50Ms": 206.39999999990687,
+      "observedApiP95Ms": 338
+    }
+  ],
+  "samples": [
+    {
+      "profile": "desktop",
+      "view": "home",
+      "run": 1,
+      "readyMs": 215.11380000000008,
+      "vitals": {
+        "TTFB": {
+          "value": 10.399999999906868,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "CLS": {
+          "value": 0,
+          "rating": "good",
+          "unit": "score"
+        },
+        "INP": {
+          "value": 312,
+          "rating": "needs-improvement",
+          "unit": "ms"
+        }
+      },
+      "apiResponses": [
+        {
+          "path": "/api/v1/day",
+          "durationMs": 8.400000000372529
+        },
+        {
+          "path": "/api/v1/overview",
+          "durationMs": 9.800000000279397
+        }
+      ]
+    },
+    {
+      "profile": "desktop",
+      "view": "home",
+      "run": 2,
+      "readyMs": 198.41539999999986,
+      "vitals": {
+        "TTFB": {
+          "value": 4.2000000001862645,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "LCP": {
+          "value": 116,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "CLS": {
+          "value": 0.023255503336588542,
+          "rating": "good",
+          "unit": "score"
+        },
+        "INP": {
+          "value": 40,
+          "rating": "good",
+          "unit": "ms"
+        }
+      },
+      "apiResponses": [
+        {
+          "path": "/api/v1/day",
+          "durationMs": 6.400000000372529
+        },
+        {
+          "path": "/api/v1/overview",
+          "durationMs": 24.300000000279397
+        }
+      ]
+    },
+    {
+      "profile": "desktop",
+      "view": "home",
+      "run": 3,
+      "readyMs": 203.53719999999976,
+      "vitals": {
+        "TTFB": {
+          "value": 6.5,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "LCP": {
+          "value": 120,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "CLS": {
+          "value": 0.023255503336588542,
+          "rating": "good",
+          "unit": "score"
+        },
+        "INP": {
+          "value": 32,
+          "rating": "good",
+          "unit": "ms"
+        }
+      },
+      "apiResponses": [
+        {
+          "path": "/api/v1/day",
+          "durationMs": 8.200000000186265
+        },
+        {
+          "path": "/api/v1/overview",
+          "durationMs": 18.100000000093132
+        }
+      ]
+    },
+    {
+      "profile": "desktop",
+      "view": "desk",
+      "run": 1,
+      "readyMs": 519.1342999999997,
+      "vitals": {
+        "TTFB": {
+          "value": 5.7000000001862645,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "LCP": {
+          "value": 124,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "CLS": {
+          "value": 0.05076454958315249,
+          "rating": "good",
+          "unit": "score"
+        },
+        "INP": {
+          "value": 64,
+          "rating": "good",
+          "unit": "ms"
+        }
+      },
+      "apiResponses": [
+        {
+          "path": "/api/v1/day",
+          "durationMs": 8.600000000093132
+        },
+        {
+          "path": "/api/v1/publications",
+          "durationMs": 7.199999999720603
+        }
+      ]
+    },
+    {
+      "profile": "desktop",
+      "view": "desk",
+      "run": 2,
+      "readyMs": 543.6728000000003,
+      "vitals": {
+        "TTFB": {
+          "value": 7,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "LCP": {
+          "value": 104,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "CLS": {
+          "value": 0.05076454958315249,
+          "rating": "good",
+          "unit": "score"
+        },
+        "INP": {
+          "value": 56,
+          "rating": "good",
+          "unit": "ms"
+        }
+      },
+      "apiResponses": [
+        {
+          "path": "/api/v1/day",
+          "durationMs": 8.5
+        },
+        {
+          "path": "/api/v1/publications",
+          "durationMs": 6
+        }
+      ]
+    },
+    {
+      "profile": "desktop",
+      "view": "desk",
+      "run": 3,
+      "readyMs": 501.0474000000013,
+      "vitals": {
+        "TTFB": {
+          "value": 7.7999999998137355,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "LCP": {
+          "value": 108,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "CLS": {
+          "value": 0.05076454958315249,
+          "rating": "good",
+          "unit": "score"
+        },
+        "INP": {
+          "value": 56,
+          "rating": "good",
+          "unit": "ms"
+        }
+      },
+      "apiResponses": [
+        {
+          "path": "/api/v1/day",
+          "durationMs": 10
+        },
+        {
+          "path": "/api/v1/publications",
+          "durationMs": 8.399999999906868
+        }
+      ]
+    },
+    {
+      "profile": "mobile-throttled",
+      "view": "home",
+      "run": 1,
+      "readyMs": 3162.826299999999,
+      "vitals": {
+        "LCP": {
+          "value": 2616,
+          "rating": "needs-improvement",
+          "unit": "ms"
+        },
+        "TTFB": {
+          "value": 5,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "CLS": {
+          "value": 0.022257220962583056,
+          "rating": "good",
+          "unit": "score"
+        },
+        "INP": {
+          "value": 360,
+          "rating": "needs-improvement",
+          "unit": "ms"
+        }
+      },
+      "apiResponses": [
+        {
+          "path": "/api/v1/day",
+          "durationMs": 283.59999999962747
+        },
+        {
+          "path": "/api/v1/overview",
+          "durationMs": 1484.5
+        }
+      ]
+    },
+    {
+      "profile": "mobile-throttled",
+      "view": "home",
+      "run": 2,
+      "readyMs": 3127.338899999999,
+      "vitals": {
+        "LCP": {
+          "value": 2640,
+          "rating": "needs-improvement",
+          "unit": "ms"
+        },
+        "TTFB": {
+          "value": 5.2000000001862645,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "CLS": {
+          "value": 0.022257220962583056,
+          "rating": "good",
+          "unit": "score"
+        },
+        "INP": {
+          "value": 240,
+          "rating": "needs-improvement",
+          "unit": "ms"
+        }
+      },
+      "apiResponses": [
+        {
+          "path": "/api/v1/day",
+          "durationMs": 286.79999999981374
+        },
+        {
+          "path": "/api/v1/overview",
+          "durationMs": 1465.8999999999069
+        }
+      ]
+    },
+    {
+      "profile": "mobile-throttled",
+      "view": "home",
+      "run": 3,
+      "readyMs": 3291.7749000000003,
+      "vitals": {
+        "LCP": {
+          "value": 2620,
+          "rating": "needs-improvement",
+          "unit": "ms"
+        },
+        "TTFB": {
+          "value": 6.600000000093132,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "CLS": {
+          "value": 0.022257220962583056,
+          "rating": "good",
+          "unit": "score"
+        },
+        "INP": {
+          "value": 184,
+          "rating": "good",
+          "unit": "ms"
+        }
+      },
+      "apiResponses": [
+        {
+          "path": "/api/v1/day",
+          "durationMs": 275.10000000009313
+        },
+        {
+          "path": "/api/v1/overview",
+          "durationMs": 1485
+        }
+      ]
+    },
+    {
+      "profile": "mobile-throttled",
+      "view": "desk",
+      "run": 1,
+      "readyMs": 6543.815499999997,
+      "vitals": {
+        "LCP": {
+          "value": 2492,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "TTFB": {
+          "value": 6.399999999906868,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "CLS": {
+          "value": 0.10532114922430728,
+          "rating": "needs-improvement",
+          "unit": "score"
+        },
+        "INP": {
+          "value": 696,
+          "rating": "poor",
+          "unit": "ms"
+        }
+      },
+      "apiResponses": [
+        {
+          "path": "/api/v1/day",
+          "durationMs": 338
+        },
+        {
+          "path": "/api/v1/publications",
+          "durationMs": 206.39999999990687
+        }
+      ]
+    },
+    {
+      "profile": "mobile-throttled",
+      "view": "desk",
+      "run": 2,
+      "readyMs": 5301.841499999995,
+      "vitals": {
+        "LCP": {
+          "value": 2500,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "TTFB": {
+          "value": 8.600000000093132,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "CLS": {
+          "value": 0.10532114922430728,
+          "rating": "needs-improvement",
+          "unit": "score"
+        },
+        "INP": {
+          "value": 192,
+          "rating": "good",
+          "unit": "ms"
+        }
+      },
+      "apiResponses": [
+        {
+          "path": "/api/v1/day",
+          "durationMs": 328.8000000002794
+        },
+        {
+          "path": "/api/v1/publications",
+          "durationMs": 204.10000000009313
+        }
+      ]
+    },
+    {
+      "profile": "mobile-throttled",
+      "view": "desk",
+      "run": 3,
+      "readyMs": 5664.268400000001,
+      "vitals": {
+        "LCP": {
+          "value": 2520,
+          "rating": "needs-improvement",
+          "unit": "ms"
+        },
+        "TTFB": {
+          "value": 7.600000000093132,
+          "rating": "good",
+          "unit": "ms"
+        },
+        "CLS": {
+          "value": 0.1827434629667705,
+          "rating": "needs-improvement",
+          "unit": "score"
+        },
+        "INP": {
+          "value": 200,
+          "rating": "good",
+          "unit": "ms"
+        }
+      },
+      "apiResponses": [
+        {
+          "path": "/api/v1/day",
+          "durationMs": 334.39999999990687
+        },
+        {
+          "path": "/api/v1/publications",
+          "durationMs": 198.39999999990687
+        }
+      ]
+    }
+  ]
+}

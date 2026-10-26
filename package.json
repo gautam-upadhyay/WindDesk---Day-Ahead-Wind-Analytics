@@ -1,0 +1,40 @@
+{
+  "name": "winddesk",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "format": "prettier --write src vite.config.ts playwright.config.ts",
+    "format:check": "prettier --check src vite.config.ts playwright.config.ts"
+  },
+  "dependencies": {
+    "lucide-react": "1.61.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "recharts": "3.10.1",
+    "web-vitals": "6.2.3"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.11.1",
+    "@playwright/test": "1.56.1",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.3",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "@vitejs/plugin-react": "6.1.2",
+    "jsdom": "26.1.0",
+    "prettier": "3.6.2",
+    "typescript": "7.0.2",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  }
+}

@@ -1,0 +1,7 @@
+node_modules
+dist
+.venv
+data
+test-results
+artifacts
+package-lock.json

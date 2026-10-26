@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#152c26" />
+    <meta name="description" content="Replay January 2026 wind forecasts as they were available to a GB day-ahead trading desk. Quantify forecast accuracy with traceable Elexon data." />
+    <title>WindDesk — Day-ahead wind intelligence</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script>
+      try {
+        const saved = localStorage.getItem("winddesk-theme");
+        const theme = saved === "light" || saved === "dark" ? saved : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        const accent = localStorage.getItem("winddesk-accent");
+        document.documentElement.dataset.accent = ["ocean", "mint", "violet"].includes(accent) ? accent : "mint";
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
