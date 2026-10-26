@@ -1,239 +1,293 @@
-# WindDesk
+# WindDesk — Day-Ahead Wind Analytics
 
-**Day-ahead wind intelligence for a Great Britain utility trading desk.**
+**Point-in-time wind forecasts and accuracy analysis for Great Britain's electricity market.**
 
-Prepared for **REint Full Stack SWE challenge v4 Shared**. See the [requirement-by-requirement alignment](docs/CHALLENGE_ALIGNMENT.md), including the scope assumptions and remaining submission steps.
+WindDesk helps a utility's day-ahead purchasing team answer two questions: **what wind forecast was available before the buying decision, and how accurately did it describe the delivered outcome?** It combines an interactive React interface with a Python analytical API and a reproducible snapshot of genuine Elexon data.
 
-A React + TypeScript frontend and Python FastAPI backend that replay Elexon wind forecasts exactly as available before January 2026 purchase decisions, then measure their error against actual generation. The bundled, verified historical snapshot makes the pilot reproducible and independent of upstream availability.
+The pilot covers **1–31 January 2026 purchase decisions**, corresponding to **2 January–1 February delivery**. Prepared for the REint Full Stack SWE challenge v4 Shared.
 
-**Live application:** not deployed yet; deployment and GitHub publication are intentionally deferred to the next phase. Replace this line with the verified public Vercel URL before submission. No external accounts, tokens, or API keys are needed to run locally.
+[Quick start](#quick-start) · [Analytics](#analytics-and-results) · [Architecture](docs/ARCHITECTURE.md) · [Verification](docs/VERIFICATION.md) · [Deployment](docs/DEPLOYMENT.md)
 
-## Run it
+![WindDesk decision desk in night mode, showing the information cutoff, forecast metrics and next-day wind generation curve](docs/screenshots/decision-desk-overview.png)
 
-### Docker (recommended)
+## Product capabilities
 
-Prerequisite: Docker Desktop with Linux containers, or Docker Engine with Compose.
+| Workspace | Capability |
+| --- | --- |
+| **Decision desk** | Replay the latest eligible forecast for each delivery hour, inspect publication history and lead time, and export the selected day to CSV. |
+| **Forecast accuracy** | Evaluate MAE, RMSE, bias, WAPE, coverage and wind shortfall/surplus through daily charts, delivery-hour profiles and an interactive error heatmap. |
+| **Cutoff comparison** | Compare four information sets side by side. Distinguish selected-day forecast energy from January-wide accuracy and verify matched-hour comparability. |
+| **Interval drill-down** | Open an individual heatmap hour, inspect its forecast publication and outcome, and focus the matching table row. Date, cutoff and selected hour are shareable through the URL. |
+| **Data & method** | Inspect source endpoints, record counts, checksums, selection rules and recorded upstream verification evidence. |
+| **Personal workspace** | Save decisions and notes, resume an analysis, search and sort saved items, and recover a removed decision with Undo. |
+
+The interface supports day/night themes, three accent palettes, keyboard navigation and responsive layouts. Accounts provide signup, login, profile/password management and persistent theme/cutoff preferences. Public analysis remains accessible without an account.
+
+## Analytics and results
+
+These screenshots are captured from the running application using the bundled Elexon snapshot. The charts show daily forecast error, signed-error distribution and accuracy by delivery hour.
+
+![WindDesk analytical charts: daily MAE and bias, hourly error distribution, and delivery-hour MAE and RMSE profiles](docs/screenshots/error-analysis.png)
+
+At the **09:00 GMT cutoff**, the January cohort contains:
+
+| Measure | Recorded result |
+| --- | ---: |
+| Matched delivery hours | **744 / 744** |
+| Mean absolute error | **2,038.91 MW** |
+| Root mean squared error | **2,504.76 MW** |
+| Signed bias | **+1,747.89 MW** |
+| Weighted absolute percentage error | **18.07%** |
+| Hours with less wind than forecast | **632 / 744** |
+
+Positive bias means wind was overestimated. These are retrospective national-wind results for one month; they do not establish a utility's purchase requirement or a persistent forecasting advantage. See [analysis and interpretation](docs/ANALYSIS.md).
+
+<details>
+<summary><strong>Explore the analytical interface</strong></summary>
+
+### Forecast accuracy dashboard
+
+Monthly metrics, the 31 × 24 delivery-hour heatmap and error breakdowns are available in one workspace.
+
+![Forecast accuracy dashboard with January metrics, the delivery-hour error heatmap and analytical charts](docs/screenshots/forecast-accuracy.png)
+
+### Compare information cutoffs
+
+The same matched delivery hours are compared at 09:00, 09:20, 15:00 and 15:30 GMT. Later information is explicitly separated from the morning decision.
+
+![Four-cutoff comparison showing selected-day forecast energy, January MAE, bias, gross wind shortfall and matched hours](docs/screenshots/cutoff-comparison-dark.png)
+
+### Inspect an individual delivery hour
+
+Selecting a heatmap cell opens its original decision context, identifies the forecast publication and highlights the matching interval. Actuals are labelled as retrospective information.
+
+![Selected delivery-hour detail showing the forecast, actual outcome and signed error with publication provenance](docs/screenshots/interval-drilldown.png)
+
+### Day mode and personal workspace
+
+[Day-mode decision desk](docs/screenshots/decision-desk.png) · [Day-mode comparison](docs/screenshots/cutoff-comparison-light.png) · [Saved decisions and notes](docs/screenshots/personal-workspace.png) · [Mobile workspace](docs/screenshots/mobile-workspace.png) · [Account interface](docs/screenshots/account-signup.png)
+
+</details>
+
+## Quick start
+
+### Docker
+
+**Prerequisite:** Docker Desktop with Linux containers, or Docker Engine with Compose. Run from the repository root:
 
 ```sh
-docker compose up --build
+docker compose up --build -d
 ```
 
-Open **http://localhost:8000**. API documentation: **http://localhost:8000/api/docs**. Stop with `docker compose down`. The multi-stage image compiles React, serves it with FastAPI, runs as a non-root user, and includes the data snapshot. Compose uses a read-only filesystem, drops Linux capabilities, and exposes port 8000.
+- Application: [http://localhost:8000](http://localhost:8000)
+- Interactive API documentation: [http://localhost:8000/api/docs](http://localhost:8000/api/docs)
+- Health endpoint: [http://localhost:8000/api/health](http://localhost:8000/api/health)
 
-### Windows without Docker
+The container builds and serves both frontend and API, includes the verified historical snapshot, and runs as a non-root user with a read-only filesystem. Account storage uses a persistent named volume. No Elexon API key or external service account is required locally.
 
-Prerequisites: Python 3.13 and Node.js 22.14 or later in the Node 22 line. From the repository root:
+Stop with `docker compose down`; the account volume is preserved.
+
+<details>
+<summary><strong>Run without Docker</strong></summary>
+
+Prerequisites: **Python 3.13** and **Node.js 22.14 or later in the Node 22 line**.
+
+**Windows / PowerShell**
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/start.ps1
 ```
 
-The script creates an isolated virtual environment, installs locked dependencies, builds the frontend, and serves the application at **http://localhost:8000**. It does not alter the system execution policy. Stop with Ctrl+C. An alternative port is supported: `-Port 8080`.
+The script installs locked dependencies, builds the frontend and starts FastAPI. Append `-Port 8080` to select another port. The execution-policy setting applies to this process only.
 
-### macOS / Linux without Docker
+**macOS / Linux**
 
 ```sh
 sh scripts/start.sh
 ```
 
-Uses `python3`, Node.js and npm. To change the port: `PORT=8080 sh scripts/start.sh`.
+Use `PORT=8080 sh scripts/start.sh` for another port. Both launch paths serve `http://localhost:8000` by default.
 
-### Development with hot reload
+**Development with hot reload**
 
-```sh
+```powershell
 python -m venv .venv
-# Windows:
 .venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .venv\Scripts\python.exe -m uvicorn backend.app:app --reload
-# macOS/Linux equivalents: .venv/bin/python
 ```
 
-In another terminal:
+On macOS/Linux, use `python3` and `.venv/bin/python` for the equivalent commands. In a second terminal:
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open **http://localhost:5173**. Vite forwards `/api` to FastAPI on port 8000. In production one origin serves both layers; CORS is not opened unnecessarily.
+Open [http://localhost:5173](http://localhost:5173). Vite forwards `/api` requests to FastAPI on port 8000. Production serves both layers from the same origin.
 
-## What the pilot does
+</details>
 
-- **Decision desk:** choose a January decision date and information cutoff, inspect next-day hourly wind forecasts, publication timestamps, age and lead time. Actuals stay hidden until explicitly revealed.
-- **Historical reference:** optionally display a past-error range and P90 wind shortfall reference, using only earlier January decisions whose actual publications precede the current cutoff. At least 48 observable hours are required. This is an empirical reference, not a calibrated prediction interval or an order recommendation.
-- **Forecast accuracy:** MAE, RMSE, signed bias, WAPE, coverage, gross wind shortfall/surplus, daily error, hourly error profile, error distribution, and a clickable 31 × 24 error heatmap.
-- **Cutoff comparison:** compare all four information cutoffs side by side, with delivery-day forecast energy and January-wide errors. Select a heatmap cell to replay its exact delivery hour, publication and highlighted table row.
-- **Auditability:** publication history distinguishes selected, earlier, and ineligible later vintages. CSV exports include both publication timestamps. Provenance exposes upstream URLs, record counts, and SHA-256 checksums.
-- **Usability:** responsive layouts, loading/error/retry states, URL-persisted filters, cancelled obsolete requests, keyboard controls and table alternatives to charts.
-- **Product overview:** Jimo-led presentation with real-data product previews, complete capabilities, workflow, data lineage and FAQs, supported by Meteomatics and AleaSoft design influences.
-- **Day/night modes:** system-aware initial appearance, persistent browser preference and themed charts, tables, controls and forms.
-- **Accounts:** working signup, login, session restoration, logout and saved appearance/default-cutoff preferences. The public pilot stays open without login.
-- **My workspace:** saved decision dates/cutoffs, notes, resume-last-decision and Ocean/Mint/Violet accents, stored separately for each browser account. Profile names and passwords can be updated from the account panel.
-- **Recovery:** unsaved-note navigation warnings, Undo removal, request timeouts and chart/component failure boundaries. See [optimization details and measurement commands](docs/OPTIMIZATIONS.md).
+## Data and analytical method
 
-## Accounts and persistence
+**Sources:** Elexon [WINDFOR/stream](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/WINDFOR/stream) forecasts and [FUELHH/stream](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FUELHH/stream) actuals, restricted to `fuelType=WIND`. No weather, demand, prices or third-party generation data are added.
 
-Create your own account with **Sign up**; no default credentials are bundled. Local startup stores accounts in ignored `.local/` storage. Docker Compose retains accounts in a named volume while the remaining filesystem stays read-only. Passwords are salted/hashed, sessions use HttpOnly cookies, and account responses are private/no-store.
+The app serves an immutable historical snapshot rather than contacting Elexon on every page load. It contains **17,864 forecast records** and **1,488 actual half-hours**, with source URLs and SHA-256 evidence retained. An independent check on **25 October 2026 at 21:20 UTC** matched all **19,352 in-scope records** across 64 official requests. This records verification at that time, not a continuous live-data guarantee. [Source-comparison evidence](data/upstream-verification.json)
 
-**Hosted Vercel accounts require persistent PostgreSQL through `DATABASE_URL`.** Set that URL and `AUTH_COOKIE_SECURE=true` in Vercel before verifying production signup/login. Guest access to public analysis has no account-database dependency. See [UI and account setup](docs/UI_AND_ACCOUNTS.md) for the design references, configuration and scope.
-
-## Domain decisions that matter
-
-1. **Decision month, not delivery month.** The brief specifies purchase decisions made in January. Decision dates 1–31 January therefore correspond to delivery dates **2 January–1 February 2026**. A 1 January delivery would require a December decision and is outside the selected cohort.
-2. **Great Britain scope.** The brief calls the client UK-based, but these Elexon aggregates represent GB metered wind; they do not represent all UK wind, Northern Ireland, embedded renewables, or a utility's portfolio entitlement.
-3. **Use publication time, not hindsight.** For each target hour, take the maximum `publishTime` strictly **before** the selected decision cutoff. A publication exactly at cutoff is excluded conservatively. Selection is per target, so partial vintages can fall back to older records. Never use an endpoint returning only the final/latest historical forecast.
-4. **Check real resolution.** The downloaded January WINDFOR observations are hourly, despite the brief's implied half-hourly alignment. FUELHH is half-hourly. We average its two half-hour MW values to compare with the hourly forecast. Both halves must be present; no forward fill, interpolation or zero replacement is applied. A schema/resolution change fails validation instead of silently changing the analysis.
-5. **Cutoff is an assumption.** Default **09:00 Europe/London** provides an illustrative preparation window before the EPEX GB hourly 09:20 auction closure. Presets also include 09:20, 15:00 and 15:30. The later cutoffs explore the afternoon auction workflow; they do not improve the information available for the morning auction. Times are GMT throughout this January-only product. Confirm the client's exchange and operational deadline before production.
-6. **Actuals are retrospective.** Use the latest downloaded FUELHH publication per half-hour. Reveal actuals explicitly; they are not available to the historical purchase decision. The uncertainty reference excludes actual records with publication timestamps at or after the decision cutoff.
-7. **Wind error is not procurement.** The app quantifies national wind deviations. Demand, contracted supply, other generation, prices, curtailment and portfolio exposure are unavailable. It cannot determine a utility's complete residual requirement, thermal dispatch, financial savings or optimal bid. Differences may include population/measurement and curtailment effects; the comparison does not establish error causality.
-
-## Quantitative definitions
-
-For matched delivery hour `h`, `error_h = forecast_h − actual_h` in MW. Positive error means overestimated wind and therefore a wind shortfall relative to the forecast.
-
-| Measure | Definition |
+| Decision | Implementation |
 | --- | --- |
-| MAE | `mean(abs(error))`, MW |
-| RMSE | `sqrt(mean(error²))`, MW; penalizes larger misses |
-| Bias | `mean(error)`, MW; signed |
-| WAPE | `sum(abs(error)) / sum(actual) × 100`; null if denominator is zero |
-| P90 absolute error | Linear-interpolated 90th percentile of absolute errors |
-| Coverage | Matched hours / expected hours; metric denominators exclude missing pairs |
-| Forecast / actual energy | Sum of available hourly average MW × 1 hour, MWh; shown alongside coverage |
-| Gross shortfall / surplus | Sum of positive / negative-part hourly errors × 1 hour, MWh; opposite signs do not cancel |
-| Past-error range | `max(0, forecast − q90(error))` to `max(0, forecast − q10(error))` using earlier observable errors |
+| **Forecast availability** | For each target hour, select the maximum `publishTime` strictly before the decision cutoff. Exactly-at-cutoff records are excluded; partial vintages can fall back to earlier publications. |
+| **Resolution alignment** | January WINDFOR records are hourly. Actuals are the mean of both FUELHH half-hour MW readings; missing halves remain missing. No synthetic half-hour forecasts are created. |
+| **Time and scope** | January decisions use GMT / Europe/London. Elexon aggregates represent GB metered wind, not every UK renewable source or a utility's portfolio. |
+| **Cutoff assumptions** | 09:00 is an illustrative preparation cutoff, not a confirmed client deadline. Other presets explore different information sets; afternoon publications cannot improve a historical morning decision. |
+| **Retrospective outcomes** | Actuals are hidden by default and explicitly revealed for evaluation. The snapshot contains downloaded actual revisions, not a reconstruction of every historical revision. |
+| **Historical error reference** | Uses only earlier January errors whose actual publications precede the selected cutoff. Requires 48 observable hours and is labelled an empirical reference, not a calibrated prediction interval. |
 
-No MAPE is shown because near-zero wind makes it unstable. We report WAPE with its denominator rule instead. The past-error sample contains correlated hours from one month; it is neither independent evidence of 80% future coverage nor a risk model for an individual portfolio.
+For a matched hour, `error = forecast − actual` in MW. MAE measures average absolute error; RMSE gives larger misses more weight; bias retains the sign. WAPE divides total absolute error by total actual generation and is undefined when that denominator is zero. Gross shortfall and surplus sum the positive and negative parts separately, in MWh, so opposite errors do not cancel.
 
-At **09:00 GMT**, the included snapshot gives **744/744 paired hours**, MAE **2,038.91 MW**, RMSE **2,504.76 MW**, bias **+1,747.89 MW**, WAPE **18.07%**, and **632** hours of wind shortfall. See [the analysis](docs/ANALYSIS.md) for interpretation and cutoff comparison.
+National wind error is only one input to procurement. Demand, contracted supply, portfolio share and prices are outside this pilot. [Full methodology](docs/ARCHITECTURE.md) · [Challenge alignment](docs/CHALLENGE_ALIGNMENT.md)
 
-## Repository map
+## Architecture and technology
+
+| Layer | Implementation |
+| --- | --- |
+| Interface | React 19, TypeScript, Vite, Recharts and Lucide |
+| Client state | Reducer and URL state, bounded public-response cache, abortable requests and deferred chart rendering |
+| API and analysis | Python 3.13, FastAPI, Pydantic response contracts and deterministic point-in-time analysis |
+| Persistence | Versioned compressed analytical snapshot; SQLite locally/in Docker or PostgreSQL for hosted accounts |
+| Quality | pytest, Vitest, Playwright, axe accessibility checks and a configured GitHub Actions workflow |
+| Delivery | Multi-stage Docker image; Vercel frontend/Python entrypoint configuration |
+
+```mermaid
+flowchart LR
+    UI["React / TypeScript"] --> API["FastAPI"]
+    API --> DATA["Verified Elexon snapshot"]
+    API --> AUTH["SQLite / PostgreSQL accounts"]
+    UI --> LOCAL["Browser-local decisions and notes"]
+```
+
+Passwords are salted and hashed; sessions use opaque HttpOnly cookies with expiry and revocation. Profile, theme and cutoff preferences persist with the account. Saved decisions and notes are **browser-local**, separated by guest/account workspace, and do not sync across devices. Unsaved-note navigation guards, Undo removal, request timeouts and rendering boundaries provide recovery paths.
+
+Hosted Vercel accounts require a persistent PostgreSQL `DATABASE_URL` and secure-cookie configuration. Public guest analysis does not depend on an account database. [Account configuration](docs/UI_AND_ACCOUNTS.md)
+
+## Repository structure
 
 ```text
 backend/
-  domain.py          Validated records, point-in-time selection, alignment, metrics
-  app.py             Versioned FastAPI routes, CSV, logging, health, static serving
-  schemas.py         Explicit response contracts for the typed API
-  provenance.py      Binds upstream verification claims to the current snapshot
-  auth.py            Persistent accounts, password hashing, sessions and preferences
-api/index.py         Vercel ASGI entrypoint using the same FastAPI app
+  domain.py              Validation, forecast selection, alignment and metrics
+  app.py                 Versioned API, CSV, health, logging and static serving
+  schemas.py             Typed API response contracts
+  provenance.py          Snapshot-bound upstream verification evidence
+  auth.py                Accounts, password hashing, sessions and preferences
+api/index.py             Vercel ASGI entrypoint
 src/
-  App.tsx            Decision desk, accuracy, provenance, accessible controls
-  Home.tsx           Landing page, real-data previews, capabilities and FAQs
-  Account.tsx        On-demand signup/login/profile and session client
-  theme.ts           Lightweight appearance hook
-  CutoffComparison.tsx  On-demand four-cutoff comparison with cohort checks
-  ErrorBoundary.tsx  Rendering/bundle failure recovery
-  NavigationGuard.tsx  Unsaved-note navigation guard
-  performance.ts     Opt-in local Web Vitals instrumentation
-  Workspace.tsx      Personal saved decisions, notes, resume and accent settings
-  workspace.css      Personal workspace, charcoal palette and field focus states
-  experience.css    Shared day/night design, public site and account UI
-  Charts.tsx         Lazy-loaded Recharts visualizations
-  api.ts             Abortable fetch hook with loading, error and retry state
-  types.ts           Frontend data contracts
-  format.ts          Consistent units and London time formatting
-  styles.css         Responsive visual system and print styles
-data/
-  forecasts.json.gz  17,864 original WINDFOR records, compressed
-  actuals.json.gz    1,488 original FUELHH WIND half-hours, compressed
-  manifest.json      Retrieval time, 64 source requests and checksums
-  upstream-verification.json  Full fresh-API comparison evidence
-scripts/
-  ingest.py          Bounded-concurrency Elexon ingestion, retries, validation
-  verify_upstream.py Independent full-record comparison with the official APIs
-  start.ps1          Windows installation/build/start workflow
-  start.sh           macOS/Linux installation/build/start workflow
-  smoke.py           Unauthenticated local/deployed endpoint checks
-  package.py         Source-only handoff ZIP generator
-  performance.mjs    Repeatable desktop/throttled-mobile lab measurements
-tests/               Python domain and API tests, including independent raw-data oracle
-e2e/                 Desktop/mobile browser integration and accessibility tests
-docs/
-  ARCHITECTURE.md    Design, API, tradeoffs and production follow-ups
-  ANALYSIS.md        Snapshot results and interpretation
-  DEMO_SCRIPT.md     Timed customer + technical walkthrough (under ten minutes)
-  DEPLOYMENT.md      Vercel, Docker, GitHub and access-verification instructions
-  SUBMISSION.md      Final-phase checklist; do not submit without a video
-  VERIFICATION.md    Checks actually run and any environment limitations
-  CHALLENGE_ALIGNMENT.md  Requirement coverage and explicit submission status
-  UI_AND_ACCOUNTS.md Design references, account security and persistence setup
-  OPTIMIZATIONS.md   Decision workflow, recovery, performance method and research
-  performance-results.json  Recorded local lab samples, not field performance
-.github/workflows/ci.yml  Tests, browser flows, build and container smoke check
-Dockerfile / compose.yaml   One-container runtime
-vercel.json          React static output + Python API rewrites/bundling
-requirements*.txt    Python runtime and development dependency inputs/lockfiles
-package*.json        Frontend dependency manifest and exact npm lockfile
+  App.tsx                Decision desk, accuracy, provenance and URL state
+  Home.tsx               Product overview and deferred real-data previews
+  Charts.tsx             Lazy-loaded forecast and accuracy visualizations
+  CutoffComparison.tsx   Four-cutoff analysis with matched-hour checks
+  Workspace.tsx          Saved decisions, notes, search, sorting and Undo
+  Account.tsx            On-demand authentication and profile management
+  NavigationGuard.tsx    Unsaved-note navigation protection
+  ErrorBoundary.tsx      Rendering and bundle-load recovery
+  api.ts / types.ts      Data fetching and frontend contracts
+  theme.ts / format.ts   Appearance, units and timestamp formatting
+  performance.ts        Opt-in Web Vitals measurement
+  *.css                  Responsive day/night interface and print styles
+data/                    Original compressed records, manifest and verification report
+scripts/                 Startup, ingestion, source verification, smoke checks,
+                         performance measurement and source packaging
+tests/                   Python tests and an independent forecast-selection oracle
+e2e/                     Desktop/mobile workflows and accessibility checks
+docs/                    Architecture, analysis, deployment, demo and verification
+docs/screenshots/        Screenshots captured from the running application
+.github/workflows/ci.yml Test, build, container and performance-artifact workflow
+Dockerfile / compose.yaml  Container build and persistent local runtime
+vercel.json              Frontend and Python function deployment configuration
+requirements*.txt       Python dependency inputs and runtime lockfile
+package*.json            Frontend dependencies and exact npm lockfile
 ```
 
-## Verify
+## Verification and reproducibility
 
-```sh
-# Windows shown; use .venv/bin/python on macOS/Linux
+Recorded local results:
+
+| Check | Evidence |
+| --- | --- |
+| Python domain, API, provenance and SQLite accounts | **62 tests passed** |
+| PostgreSQL accounts | **19 additional tests passed** against a disposable database |
+| React components and data hooks | **9 tests passed** |
+| Desktop/mobile browser scenarios | **50 distinct checks passed**, including affected-flow reruns |
+| Responsive inspection | **30 layouts** checked with no page overflow |
+| Production build and runtime | TypeScript/Vite build, Docker build, API/CSV smoke checks and account persistence verified locally |
+
+The test history, accessibility evidence, dependency checks and tooling limitations are recorded in [VERIFICATION.md](docs/VERIFICATION.md). CI is configured; a successful hosted workflow or public deployment is not claimed by these local results.
+
+**Python tests — Windows / PowerShell**
+
+```powershell
+python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .venv\Scripts\python.exe -m pytest
+```
+
+On macOS/Linux, use `python3` and `.venv/bin/python` instead. For Windows temporary-directory permission issues, see the [verification notes](docs/VERIFICATION.md#issues-discovered-and-resolved-during-verification).
+
+**Frontend and browser tests**
+
+```sh
 npm ci
 npm test
 npm run build
+npm run format:check
 npx playwright install chromium
 npm run test:e2e
 ```
 
-The browser tests start the production server automatically when nothing is running on port 8000. To use an already installed Edge instead of downloading Chromium, set `PLAYWRIGHT_CHANNEL=msedge` in your shell. CI installs Chromium, runs all tests, builds the container, and checks `/api/health` and `/`.
+Browser tests start the production API automatically if port 8000 is free. To use installed Edge, set `PLAYWRIGHT_CHANNEL=msedge` instead of downloading Chromium.
 
-If Windows denies access to an old pytest temporary/cache directory (for example after switching between sandbox and regular execution), use fresh project-local scratch directories:
+**Running-app checks and performance measurements**
 
-```powershell
-New-Item -ItemType Directory -Force -Path .local | Out-Null
-$testScratch = Join-Path (Get-Location) ('.local/pytest-' + [guid]::NewGuid().ToString('N'))
-.venv\Scripts\python.exe -m pytest --basetemp $testScratch -o "cache_dir=$testScratch-cache"
+```sh
+python scripts/smoke.py --base-url http://127.0.0.1:8000
+node scripts/performance.mjs --runs 3
 ```
 
-`npm run format:check` verifies the frontend source style. `python scripts/package.py` creates `artifacts/WindDesk-source.zip` without dependencies, generated build output or credentials. Fonts are self-hosted; their Open Font Licences are in `public/fonts/`.
+The performance report records desktop and throttled-mobile lab samples, not real-user p75 statistics. Some mobile LCP/INP targets remain unmet. [Measured results and limitations](docs/OPTIMIZATIONS.md)
 
-The local extension previously passed **62 Python tests** and **19 additional runs of the account tests against PostgreSQL**. The latest optimization update passed **9 React tests** and **50 distinct desktop/mobile browser checks** across the full run and affected-flow reruns. Docker account/session persistence was checked across container replacement. See [verification evidence](docs/VERIFICATION.md), [optimization research and performance method](docs/OPTIMIZATIONS.md), and the [personal workspace](docs/screenshots/personal-workspace.png), [day](docs/screenshots/home-day.png), [night](docs/screenshots/home-night.png) and [signup](docs/screenshots/account-signup.png) screenshots.
+<details>
+<summary><strong>Refresh or independently verify the source snapshot</strong></summary>
 
-## Refresh the snapshot
-
-Not required to run the app. Fetches only the two permitted Elexon datasets; no other generation, weather, demand or market-price data is used.
+Neither command is needed for ordinary startup. Ingestion uses the public JSON API at `https://data.elexon.co.uk/bmrs/api/v1/datasets/` and only the two permitted datasets.
 
 ```sh
 python scripts/ingest.py
-```
-
-WINDFOR requests cover 30 December–31 January publication dates, retaining only the cohort's delivery hours and publications before 1 February. The older vintages permit fallback at the earliest January cutoff. Actual requests cover 2 January–1 February settlement dates, restricted to WIND. Four concurrent downloads, per-request timeouts, bounded retries, duplicate-conflict detection, response hashes and atomic file replacement support auditability. Stop/restart the API after refresh to invalidate in-process caches. Refresh intentionally requires a rebuild/redeployment for the hosted immutable pilot. Do not run ingestion inside a public request handler.
-
-## Verify the genuine upstream APIs
-
-The brief links API documentation on `bmrs.elexon.co.uk`; the actual public JSON service is **`https://data.elexon.co.uk/bmrs/api/v1/datasets/`**. Both ingestion and verification call only `WINDFOR/stream` and `FUELHH/stream` (WIND), over HTTPS. No API key is required. The application serves a reproducible historical snapshot downloaded from these APIs, rather than calling Elexon on every page load.
-
-```sh
 python scripts/verify_upstream.py
 ```
 
-This separate online check re-fetches all **64** source requests and compares **every original field** of every in-scope record; timestamp formats are normalized to UTC. It exits nonzero on differences or unavailable upstream responses, saves evidence in `data/upstream-verification.json`, and never alters generation data. Re-run after ingestion and investigate differences before rebuilding. Runtime verification claims are bound to the current data-file hashes, so replacing the snapshot invalidates an older report.
+Ingestion validates records, retains relevant publication vintages, records response hashes and replaces files atomically. The verifier re-fetches all 64 source requests and compares every original in-scope field after timestamp normalization. It exits nonzero on differences or unavailable responses and saves its report without changing generation data.
 
-On **25 October 2026 at 21:20 UTC** (26 October in India), the check matched **17,864/17,864 forecast records and 1,488/1,488 actual records**, with zero changed, missing or additional records. This is evidence of the historical snapshot's source at that check time, not a continuous live-data guarantee. The Data & method view displays this result and its timestamp. See [the evidence](data/upstream-verification.json).
+Investigate differences before release. Restart/rebuild after a refresh; runtime integrity checks bind verification evidence to the current data hashes. Ingestion is an operator command, separate from public API requests.
 
-## Deploy later
+</details>
 
-Use the step-by-step [deployment guide](docs/DEPLOYMENT.md). `vercel.json` supports a Vite frontend and `api/index.py` Python function in one project. The Docker image is a separate portable deployment path. No live deployment or public repository has been created in this phase.
+## Deployment and documentation
 
-## AI assistance disclosure
+**Hosted application:** pending deployment. **Demo video:** pending recording/upload. Deployment configuration and the two-part presentation script are included; verified public URLs must be added before challenge submission.
 
-**OpenAI Codex was used** for domain research, implementation, UI design, documentation and test generation. The application has no LLM dependency, makes no AI inference calls and generates no synthetic generation data. Tests include an independent direct comparison against the original source records. Review the implementation, understand the assumptions and rehearse the technical explanation before presenting it as your work.
+| Document | Purpose |
+| --- | --- |
+| [Architecture](docs/ARCHITECTURE.md) | System design, API, data rules and tradeoffs |
+| [Analysis](docs/ANALYSIS.md) | January results and interpretation |
+| [Optimizations](docs/OPTIMIZATIONS.md) | Research, recovery behavior and performance methodology |
+| [Deployment](docs/DEPLOYMENT.md) | Vercel, Docker, PostgreSQL and access verification |
+| [Demo script](docs/DEMO_SCRIPT.md) | Customer and technical walkthrough, planned under ten minutes |
+| [Submission guide](docs/SUBMISSION.md) | Repository, video, public links and final access checks |
 
-Kluster review/dependency tools were not exposed in the authoring environment, so the requested Kluster checks could not be run. This is documented explicitly rather than represented as a passed review.
+Create a source-only handoff archive with `python scripts/package.py`. The resulting `artifacts/WindDesk-source.zip` excludes credentials, account databases, dependencies and generated build output.
 
-## Data attribution and references
+## AI assistance and data attribution
 
-Contains BSC information licensed under the [Elexon Public Data Licence](https://www.elexon.co.uk/bsc/documents/data/open-data-requests/bsc-public-data-licence/).
+**OpenAI Codex assisted with domain research, implementation, UI design, documentation and test generation.** The application does not call an LLM or generate synthetic wind data. Analytical outputs are derived from the retained Elexon records.
 
-- [FUELHH stream documentation](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FUELHH/stream)
-- [WINDFOR stream documentation](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/WINDFOR/stream)
-- [Elexon wind forecast description](https://bmrs.elexon.co.uk/api-documentation/endpoint/forecast/generation/wind/latest)
-- [Elexon wind generation page: hourly forecast description](https://bmrs.elexon.co.uk/wind-generation)
-- [EPEX official trading timetable](https://www.epexspot.com/sites/default/files/2024-09/Trading%20Brochure%202024%20August.pdf)
-- [Vercel Python functions](https://vercel.com/docs/functions/runtimes/python)
-- [FastAPI container deployment](https://fastapi.tiangolo.com/deployment/docker/)
+Contains BSC information licensed under the [Elexon Public Data Licence](https://www.elexon.co.uk/bsc/documents/data/open-data-requests/bsc-public-data-licence/). Self-hosted font licences are included in `public/fonts/`.
+
+[WINDFOR documentation](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/WINDFOR/stream) · [FUELHH documentation](https://bmrs.elexon.co.uk/api-documentation/endpoint/datasets/FUELHH/stream) · [Elexon wind generation](https://bmrs.elexon.co.uk/wind-generation)
